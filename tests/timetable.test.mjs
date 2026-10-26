@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildTimetable, weekDates } from '../lib/client/timetable.mjs';
+import * as timetable from '../lib/client/timetable.mjs';
+const { buildTimetable, weekDates } = timetable;
 const slot = (start) => ({ start, end: new Date(Date.parse(start) + 30 * 60000).toISOString() });
 test('week dates cross months and the last partial booking week remains reachable', () => {
   assert.deepEqual(weekDates('2026-10-26', 0), ['2026-10-26','2026-10-27','2026-10-28','2026-10-29','2026-10-30','2026-10-31','2026-11-01']);
@@ -98,4 +99,42 @@ test('dates outside the booking horizon and DST gaps stay disabled rather than b
     });
   assert.equal(rows.find(r=>r.minute===120).states?.[1], 'unavailable');
   assert.equal(rows.find(r=>r.minute===120).states?.[2], 'unavailable');
+});
+
+test('weeks always begin on Monday, including Sunday and year boundaries', () => {
+  assert.equal(timetable.mondayOfWeek?.('2026-10-29'), '2026-10-26');
+  assert.equal(timetable.mondayOfWeek?.('2026-11-01'), '2026-10-26');
+  assert.equal(timetable.mondayOfWeek?.('2026-10-26'), '2026-10-26');
+  assert.equal(timetable.mondayOfWeek?.('2027-01-01'), '2026-12-28');
+  assert.deepEqual(weekDates(timetable.mondayOfWeek('2026-10-29'), 3),
+    ['2026-11-16','2026-11-17','2026-11-18','2026-11-19','2026-11-20','2026-11-21','2026-11-22']);
+});
+
+test('hourly overview halves the row count while keeping every real start time', () => {
+  const slots = Array.from({length:26},(_,i)=>slot(new Date(Date.UTC(2026,9,27,14,i*30)).toISOString()));
+  const detailed = buildTimetable(slots,'America/New_York',['2026-10-27']);
+  const overview = timetable.hourlyTimetable?.(detailed);
+  assert.equal(overview?.length,13);
+  assert.deepEqual(overview.flatMap(row=>row.cells[0].slots),slots);
+});
+
+test('hourly overview preserves partial occupancy without claiming an entire hour is busy', () => {
+  const open=slot('2026-10-27T17:00:00Z');
+  const detailed=buildTimetable([open,slot('2026-10-27T18:00:00Z')],'America/New_York',['2026-10-27'],{
+    now:Date.parse('2026-10-26T20:00:00Z'), busy:[slot('2026-10-27T17:30:00Z')],
+  });
+  const overview=timetable.hourlyTimetable?.(detailed);
+  assert.deepEqual(overview?.[0].cells[0].parts.map(part=>part.state),['available','busy']);
+  assert.deepEqual(overview[0].cells[0].slots,[open]);
+});
+
+test('hour grouping keeps DST repeats and quarter-hour starts as distinct exact choices', () => {
+  const first=slot('2026-11-01T05:30:00Z'),second=slot('2026-11-01T06:30:00Z');
+  const repeated=timetable.hourlyTimetable?.(buildTimetable([second,first],'America/New_York',['2026-11-01']));
+  assert.deepEqual(repeated?.[0].cells[0].slots,[first,second]);
+  const quarter=slot('2026-10-27T14:00:00Z');
+  const shifted=timetable.hourlyTimetable(buildTimetable([quarter],'Asia/Kathmandu',['2026-10-27']));
+  assert.equal(shifted[0].minute,19*60);
+  assert.equal(shifted[0].cells[0].parts[0].minute,19*60+45);
+  assert.deepEqual(shifted[0].cells[0].slots,[quarter]);
 });
