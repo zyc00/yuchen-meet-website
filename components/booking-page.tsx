@@ -376,7 +376,8 @@ export function BookingPage() {
       ) : (
         <>
           <section className="card booking-card">
-            <h2>Choose a time</h2>
+            <h2 className="sr-only">Choose a time</h2>
+            <div className="booking-settings">
             <div className="duration-picker" aria-label="Meeting duration">
               {[30, 60].map((n) => (
                 <button
@@ -389,12 +390,12 @@ export function BookingPage() {
                     setSelected(null);
                   }}
                 >
-                  {n} minutes
+                  {n} min
                 </button>
               ))}
             </div>
             <label className="timezone-control">
-              <span>Timezone</span>
+              <span className="sr-only">Timezone</span>
               <select
                 value={tz}
                 onChange={(e) => {
@@ -414,6 +415,7 @@ export function BookingPage() {
                 ))}
               </select>
             </label>
+            </div>
             <div aria-live="polite" aria-busy={loading}>
               {loading ? (
                 <div className="empty-state">
@@ -456,9 +458,6 @@ export function BookingPage() {
                 />
               )}
             </div>
-            {data?.ready && (
-              <p className="card-note">Same-day bookings welcome.</p>
-            )}
           </section>
           {(selected || frozen) && (
             <section className="card details-card" id="booking-details">

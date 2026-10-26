@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { calendarDays } from "../lib/client/calendar.mjs";
 import { buildTimetable, weekDates } from "../lib/client/timetable.mjs";
 
@@ -52,16 +52,11 @@ export function TimeTable({ slots, timezone, now, duration, selected, locked, on
           <button type="button" aria-label="Next week" onClick={() => changeWeek(page + 1)} disabled={page === maxWeek || locked}><ChevronRight size={18} /></button>
         </div>
       </div>
-      <div className="timetable-key">
-        <span><i className="available-key" /> Available</span>
-        <span><i className="unavailable-key" /> Unavailable</span>
-        <span className="start-time-note">Select a start time · {duration} min</span>
-      </div>
       <div className="timetable-scroll" ref={scroll} role="region" aria-label="Weekly meeting start times" tabIndex={0}>
         <table className="time-table">
           <caption className="sr-only">Available {duration}-minute meetings. All times in {timezone.replaceAll("_", " ")}.</caption>
           <thead><tr>
-            <th className="time-axis" scope="col"><span>Time</span></th>
+            <th className="time-axis" scope="col"><span className="sr-only">Time</span></th>
             {dates.map(day => <th key={day} scope="col" className={`${day === firstDay ? "is-today" : ""} ${!days.includes(day) ? "outside-horizon" : ""}`}>
               <span className="day-name">{dateLabel(day, { weekday: "short" })}</span>
               <span className="day-number">{dateLabel(day, { day: "numeric" })}</span>
@@ -69,31 +64,33 @@ export function TimeTable({ slots, timezone, now, duration, selected, locked, on
             </th>)}
           </tr></thead>
           <tbody>
-            {rows.map(row => <tr key={row.minute}>
-              <th scope="row" className="time-axis">{row.label}</th>
+            {rows.map((row, rowIndex) => <tr key={row.minute} className={rowIndex % 2 === 0 ? "hour-row" : "half-hour-row"}>
+              <th scope="row" className="time-axis"><span>{row.label}</span></th>
               {row.cells.map((cell, column) => <td key={dates[column]}>
                 {cell.length ? <div className="time-cell-options">{cell.map(slot => {
                   const isSelected = selected?.start === slot.start;
                   const label = `${dateLabel(dates[column], { weekday: "long", month: "long", day: "numeric" })}, ${timeLabel(slot.start, timezone, true)} to ${timeLabel(slot.end, timezone, true)}`;
                   return <button key={slot.start} type="button" disabled={locked}
-                    className={`time-cell available ${isSelected ? "selected" : ""}`}
+                    className={`time-cell available ${isSelected ? "selected" : ""} ${cell.length > 1 ? "repeated-time" : ""}`}
                     aria-label={label} aria-pressed={isSelected} title={label}
                     onClick={() => onSelect(slot)}>
-                    {isSelected && <Check size={12} aria-hidden="true" />}
-                    <span>{timeLabel(slot.start, timezone, cell.length > 1)}</span>
                   </button>;
-                })}</div> : <span className="time-cell unavailable" aria-label="Unavailable"><span aria-hidden="true">—</span></span>}
+                })}</div> : <span className="time-cell unavailable" aria-label="Unavailable" />}
               </td>)}
             </tr>)}
           </tbody>
         </table>
       </div>
       {!hasOpenTimes && <p className="subtle-text" role="status">No open times this week. Try another week or a shorter meeting.</p>}
-      <p className="timetable-hint">Times shown in {timezone.replaceAll("_", " ")}.<span className="mobile-scroll-hint"> Swipe to see more days.</span></p>
+      <div className="timetable-key">
+        <span><i className="available-key" /> Available</span>
+        <span><i className="unavailable-key" /> Unavailable</span>
+        <span className="start-time-note">Choose a {duration}-minute start time<span className="mobile-scroll-hint"> · Swipe for more days</span></span>
+      </div>
       {selected && <div className="time-selection">
         <div aria-live="polite">
           <span>{new Date(selected.start).toLocaleDateString("en-US", { timeZone: timezone, weekday: "short", month: "short", day: "numeric" })}</span>
-          <strong>{timeLabel(selected.start, timezone, true)} – {timeLabel(selected.end, timezone, true)}</strong>
+          <strong>{timeLabel(selected.start, timezone)} – {timeLabel(selected.end, timezone)}<small>{timezone.replaceAll("_", " ")}</small></strong>
         </div>
         <button type="button" className="primary-button" onClick={onContinue}>Continue <ArrowRight size={16} /></button>
       </div>}

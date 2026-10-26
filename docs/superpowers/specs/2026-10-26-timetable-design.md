@@ -7,3 +7,5 @@ The existing booking request, calendar integration and recovery behavior remain 
 Approach: a semantic HTML table with native buttons fits the requested timetable and the existing lightweight frontend. A third-party calendar library would add unnecessary UI and dependencies; retaining the separate day/time pickers would not meet the request. Week paging, compact cell styling and responsive dimensions are implementation choices.
 
 Timezone conversion must retain every actual slot, including repeated wall times during DST and quarter-hour offsets. Empty, loading, closed and failed availability must remain honest and non-bookable. No live test invitations.
+
+Visual refinement: following the user's feedback and the overview at meet.jiayuanm.com, keep all time text on the left axis. Grid cells contain color only, including the selected cell. Use compact rectangular blocks, small gutters, pale green availability and muted unavailable slots. Exact times remain in accessible names/native tooltips and the selection summary below the calendar. Keep the page narrow, place duration/timezone controls on one row, and remove redundant explanatory rows.

@@ -408,65 +408,85 @@ footer {
   }
 }
 
-/* The booking timetable keeps the homepage's quiet colors and type. */
-.booking-page { max-width: 1020px; }
-.booking-page .hero { margin-bottom: 32px; }
-.booking-card > h2 { margin-bottom: 18px; }
-.timetable-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 26px 0 14px; }
-.timetable-toolbar h3 { font-family: var(--serif); font-size: 1.2rem; font-weight: 400; }
-.range-dash { color: var(--muted); margin: 0 8px; }
-.week-navigation { display: flex; align-items: center; gap: 5px; }
-.week-navigation button { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 1px solid var(--rule); border-radius: 4px; background: transparent; color: var(--accent); }
-.week-navigation button:not(:disabled):hover { background: #edf3ef; border-color: #bad1c9; }
-.week-navigation .today-button { width: auto; padding: 0 12px; margin-right: 5px; font-size: .8rem; }
-.timetable-key { display: flex; align-items: center; gap: 18px; color: var(--muted); font-size: .75rem; margin-bottom: 12px; }
-.timetable-key > span { display: inline-flex; align-items: center; gap: 6px; }
-.timetable-key i { width: 10px; height: 10px; display: inline-block; border-radius: 2px; }
-.available-key { background: #e3eee8; border: 1px solid #bfd6cb; }
-.unavailable-key { background: #f1f2ee; border: 1px solid #e4e7e1; }
-.timetable-key .start-time-note { margin-left: auto; }
-.timetable-scroll { max-height: 574px; overflow: auto; border: 1px solid var(--rule); border-radius: 5px; scrollbar-color: #c0ccc6 transparent; scrollbar-width: thin; scroll-padding-top: 82px; scroll-padding-left: 80px; }
-.time-table { width: 100%; min-width: 780px; table-layout: fixed; border-collapse: separate; border-spacing: 0; font-variant-numeric: tabular-nums; }
+/* A quiet weekly calendar, using the homepage palette and typography. */
+.booking-page { max-width: 800px; padding-top: 40px; }
+.booking-page .hero { margin: 8px 0 30px; }
+.booking-page h1 { font-size: 1.8rem; }
+.booking-card { padding: 22px 0 20px; }
+.booking-settings { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.booking-settings .duration-picker { gap: 3px; padding: 3px; background: #eff1ec; border-radius: 7px; }
+.booking-settings .duration-picker button { border: 0; border-radius: 5px; padding: 4px 15px; color: var(--muted); font-size: .8rem; line-height: 1.7; }
+.booking-settings .duration-picker button.active { background: var(--paper); color: var(--ink); box-shadow: 0 1px 3px #24332b12; font-weight: 500; }
+.booking-settings .timezone-control { margin: 0; font-size: .78rem; }
+.booking-settings .timezone-control select { border: 0; padding: 6px 0 6px 8px; color: var(--muted); max-width: 245px; }
+.timetable-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 27px 0 20px; }
+.timetable-toolbar h3 { font-family: var(--serif); font-size: 1.25rem; font-weight: 400; letter-spacing: -.02em; }
+.range-dash { color: var(--muted); margin: 0 7px; }
+.week-navigation { display: flex; align-items: center; gap: 4px; }
+.week-navigation button { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--ink); }
+.week-navigation button:not(:disabled):hover { background: #edf1eb; }
+.week-navigation button:disabled { opacity: .25; }
+.week-navigation .today-button { width: auto; padding: 0 10px; margin-right: 5px; font-size: .75rem; border-radius: 4px; color: var(--muted); }
+.timetable-scroll { max-height: 620px; overflow: auto; scrollbar-color: #cad4ce transparent; scrollbar-width: thin; scroll-padding-top: 66px; scroll-padding-left: 65px; }
+.time-table { width: 100%; min-width: 580px; table-layout: fixed; border-collapse: separate; border-spacing: 0; font-variant-numeric: tabular-nums; }
 .time-table th { font-weight: 400; }
-.time-table thead th { position: sticky; top: 0; z-index: 2; padding: 11px 0 12px; text-align: center; background: var(--paper); border-bottom: 1px solid var(--rule); }
-.time-table th.time-axis { width: 80px; position: sticky; left: 0; z-index: 1; background: var(--paper); color: var(--muted); text-align: right; padding: 0 12px 0 0; font-size: .68rem; border-right: 1px solid var(--rule); white-space: nowrap; }
-.time-table thead th.time-axis { z-index: 3; font-size: .72rem; }
-.day-name { display: block; font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; line-height: 1.5; }
-.day-number { display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center; margin-top: 4px; font-family: var(--serif); font-size: 1.25rem; line-height: 1; border-radius: 50%; }
-.is-today .day-name { color: var(--accent); }
-.is-today .day-number { background: #e4eee8; color: var(--accent); }
-.outside-horizon .day-name, .outside-horizon .day-number { opacity: .4; }
-.time-table td { padding: 3px; border-right: 1px solid #edf0e9; border-bottom: 1px solid #edf0e9; vertical-align: top; }
-.time-table tbody th { border-bottom: 1px solid #edf0e9; }
+.time-table thead th { position: sticky; top: 0; z-index: 2; padding: 0 0 12px; text-align: center; background: var(--paper); }
+.time-table th.time-axis { width: 65px; position: sticky; left: 0; z-index: 1; background: var(--paper); color: var(--muted); text-align: right; padding: 0 14px 0 0; font-size: .65rem; white-space: nowrap; }
+.time-table thead th.time-axis { z-index: 3; border-bottom: 0; }
+.day-name { display: block; font-size: .65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; line-height: 1.5; }
+.day-number { display: inline-flex; width: 30px; height: 30px; align-items: center; justify-content: center; margin-top: 3px; font-size: 1.1rem; font-weight: 400; line-height: 1; border-radius: 50%; }
+.is-today .day-number { background: var(--accent); color: var(--paper); }
+.outside-horizon .day-name, .outside-horizon .day-number { opacity: .35; }
+.time-table td { padding: 1px 2px; vertical-align: top; }
 .time-table td:last-child { border-right: 0; }
-.time-table tbody tr:last-child td, .time-table tbody tr:last-child th { border-bottom: 0; }
-.time-cell-options { display: flex; flex-direction: column; gap: 3px; }
-.time-cell { width: 100%; min-height: 31px; display: flex; gap: 4px; align-items: center; justify-content: center; padding: 4px 2px; border: 1px solid transparent; border-radius: 3px; font-size: .72rem; line-height: 1.4; }
-.time-cell.available { background: #eaf3ed; border-color: #d4e4d9; color: #306653; transition: background .12s, border-color .12s; }
-.time-cell.available:not(:disabled):hover { background: #d9eadd; border-color: #83b19d; }
-.time-cell.available.selected, .time-cell.available.selected:not(:disabled):hover { background: var(--accent); border-color: var(--accent); color: white; font-weight: 600; }
-.time-cell:focus-visible { outline-offset: 0; position: relative; z-index: 1; }
-.time-cell.unavailable { color: #c6cdc6; background: #f3f4f0; user-select: none; }
-.timetable-hint { margin: 10px 0 0; color: var(--muted); font-size: .75rem; }
+.time-table tbody tr:last-child td { border-bottom: 0; }
+.time-table tbody .time-axis { vertical-align: top; }
+.time-table tbody .time-axis > span { position: relative; top: -1px; }
+.time-table .half-hour-row .time-axis > span { opacity: 0; }
+.time-table .half-hour-row:focus-within .time-axis > span,
+.time-table .half-hour-row:hover .time-axis > span { opacity: 1; }
+.time-cell-options { display: flex; flex-direction: column; gap: 2px; }
+.time-cell { width: 100%; height: 17px; min-height: 17px; display: block; padding: 0; border: 1px solid transparent; border-radius: 2px; }
+.time-cell.available { background: #dfeae3; border-color: #d0dfd5; transition: background .12s; }
+.time-cell.available:not(:disabled):hover,
+.time-cell.available:focus-visible { background: #b5d0c1; border-color: #8db6a1; }
+.time-cell.available.selected, .time-cell.available.selected:not(:disabled):hover { background: var(--accent); border-color: var(--accent); }
+.time-cell:focus-visible { outline-offset: -2px; position: relative; z-index: 1; }
+.time-cell.unavailable { background: #f0f0ec; border-color: #e8eae3; user-select: none; }
+.timetable-key { display: flex; align-items: center; gap: 16px; color: var(--muted); font-size: .7rem; margin: 15px 0 0 65px; }
+.timetable-key > span { display: inline-flex; align-items: center; gap: 6px; }
+.timetable-key i { width: 9px; height: 9px; display: inline-block; border-radius: 2px; }
+.available-key { background: #dfeae3; border: 1px solid #d0dfd5; }
+.unavailable-key { background: #f0f0ec; border: 1px solid #e8eae3; }
+.timetable-key .start-time-note { margin-left: auto; }
 .mobile-scroll-hint { display: none; }
-.time-selection { display: flex; align-items: center; justify-content: space-between; gap: 16px; background: #edf4ef; border: 1px solid #cfdfd5; border-radius: 4px; padding: 14px 16px; margin-top: 18px; }
-.time-selection > div > span { display: block; color: var(--muted); font-size: .78rem; }
-.time-selection strong { font-size: .9rem; font-weight: 500; }
-.time-selection .primary-button { white-space: nowrap; border-radius: 3px; }
+.time-selection { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px solid var(--rule); padding: 19px 0 0; margin: 22px 0 0 65px; }
+.time-selection > div > span { display: block; color: var(--muted); font-size: .75rem; }
+.time-selection strong { font-size: .88rem; font-weight: 500; }
+.time-selection small { display: block; font-size: .7rem; font-weight: 400; color: var(--muted); }
+.time-selection .primary-button { white-space: nowrap; border-radius: 5px; font-size: .8rem; padding: 6px 14px; }
 .details-card { max-width: 680px; scroll-margin-top: 24px; }
+.booking-page footer { font-size: .7rem; margin-top: 16px; padding-top: 14px; }
 @media (max-width: 700px) {
-  .timetable-toolbar { align-items: flex-start; gap: 8px; }
-  .timetable-toolbar h3 { font-size: 1rem; max-width: 180px; }
+  .booking-page { padding: 28px 18px; }
+  .booking-page .hero { margin: 8px 0 25px; }
+  .booking-page h1 { font-size: 1.6rem; }
+  .booking-settings { gap: 8px; }
+  .booking-settings .duration-picker button { padding: 4px 10px; font-size: .75rem; }
+  .booking-settings .timezone-control { min-width: 0; }
+  .booking-settings .timezone-control select { font-size: .7rem; width: 165px; }
+  .timetable-toolbar { gap: 8px; margin: 24px 0 18px; }
+  .timetable-toolbar h3 { font-size: 1.05rem; }
   .range-dash { margin: 0 4px; }
+  .week-navigation { gap: 0; }
   .week-navigation .today-button { display: none; }
-  .timetable-key { gap: 12px; flex-wrap: wrap; }
-  .timetable-key .start-time-note { margin-left: 0; }
-  .timetable-scroll { max-height: 520px; }
-  .time-table { min-width: 760px; }
-  .time-table th.time-axis { width: 70px; padding-right: 9px; }
+  .timetable-scroll { max-height: 536px; }
+  .time-table { min-width: 580px; }
+  .time-table th.time-axis { width: 55px; padding-right: 9px; }
+  .time-cell { height: 28px; min-height: 28px; }
+  .timetable-key { margin-left: 55px; flex-wrap: wrap; gap: 8px 14px; font-size: .65rem; }
+  .timetable-key .start-time-note { width: 100%; margin-left: 0; display: block; }
   .mobile-scroll-hint { display: inline; }
-  .time-selection { align-items: flex-start; padding: 12px; gap: 10px; }
-  .time-selection strong { font-size: .8rem; display: block; }
-  .time-selection .primary-button { font-size: .8rem; padding: 7px 10px; }
+  .time-selection { margin-left: 0; gap: 10px; }
 }
 @media (prefers-reduced-motion: reduce) { .time-cell { transition: none; } }
