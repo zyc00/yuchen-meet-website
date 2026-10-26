@@ -1,5 +1,5 @@
 import { apiFetch } from "../lib/client/api.mjs";
-import { calendarDays } from "../lib/client/calendar.mjs";
+import { TimeTable } from "./time-table";
 import { safeStorage } from "../lib/client/storage.mjs";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { LoaderCircle } from "lucide-react";
@@ -30,16 +30,6 @@ type Attempt = {
   key: string;
   token: string;
 };
-const dayKey = (date: Date | string, tz: string) =>
-  new Intl.DateTimeFormat("en-CA", {
-    timeZone: tz,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date(date));
-const dateObject = (key: string) => new Date(key + "T12:00:00Z");
-const dateLabel = (key: string, options: Intl.DateTimeFormatOptions) =>
-  dateObject(key).toLocaleDateString("en-US", { ...options, timeZone: "UTC" });
 const time = (iso: string, tz: string) =>
   new Date(iso).toLocaleTimeString("en-US", {
     timeZone: tz,
@@ -61,8 +51,7 @@ export function BookingPage() {
     [loading, setLoading] = useState(true),
     [loadError, setLoadError] = useState(""),
     [refresh, setRefresh] = useState(0);
-  const [selectedDay, setDay] = useState(""),
-    [selected, setSelected] = useState<Slot | null>(null);
+  const [selected, setSelected] = useState<Slot | null>(null);
   const [name, setName] = useState(""),
     [email, setEmail] = useState(""),
     [topic, setTopic] = useState(""),
@@ -143,29 +132,10 @@ export function BookingPage() {
       });
     return () => controller.abort();
   }, [duration, refresh]);
-  const today = dayKey(new Date(data?.now || Date.now()), tz);
-  const days = useMemo(
-    () => calendarDays(data?.now || Date.now(), tz),
-    [data?.now, tz],
-  );
-  const byDay = useMemo(() => {
-    const map = new Map<string, Slot[]>();
-    for (const slot of data?.slots || []) {
-      const key = dayKey(slot.start, tz);
-      map.set(key, [...(map.get(key) || []), slot]);
-    }
-    return map;
-  }, [data, tz]);
   useEffect(() => {
-    if (frozen) return;
-    const first =
-      selected &&
-      byDay
-        .get(dayKey(selected.start, tz))
-        ?.some((s) => s.start === selected.start);
-    if (selected && !first) setSelected(null);
-    setDay((d) => (byDay.has(d) ? d : byDay.keys().next().value || ""));
-  }, [byDay, frozen, selected, tz]);
+    if (frozen || !selected || !data) return;
+    if (!data.slots.some(slot => slot.start === selected.start)) setSelected(null);
+  }, [data, frozen, selected]);
   const timezones = useMemo(() => {
     const all =
       typeof Intl.supportedValuesOf === "function"
@@ -301,7 +271,6 @@ export function BookingPage() {
     }
   }
   const locked = frozen || sending;
-  const selectedSlots = byDay.get(selectedDay) || [];
   const [icsError, setIcsError] = useState("");
   async function downloadInvite() {
     if (!result || !attempt.current) return;
@@ -321,7 +290,7 @@ export function BookingPage() {
     }
   }
   return (
-    <main className="page-shell">
+    <main className="page-shell booking-page">
       <header className="hero">
         <h1>Meet with Yuchen Zhou</h1>
       </header>
@@ -436,7 +405,6 @@ export function BookingPage() {
                     "yuchen-meeting-timezone",
                     e.target.value,
                   );
-                  if (selected) setDay(dayKey(selected.start, e.target.value));
                 }}
               >
                 {timezones.map((zone) => (
@@ -467,82 +435,25 @@ export function BookingPage() {
                   <p>Booking is not available yet. Please check back soon.</p>
                 </div>
               ) : (
-                <>
-                  <div className="calendar-title">
-                    <strong>
-                      {dateLabel(days[0], { month: "long" })}
-                      {dateLabel(days[0], { month: "long" }) !==
-                      dateLabel(days.at(-1)!, { month: "long" })
-                        ? ` – ${dateLabel(days.at(-1)!, { month: "long" })}`
-                        : ""}{" "}
-                      <span>{dateLabel(days[0], { year: "numeric" })}</span>
-                    </strong>
-                    <small>Next 3 weeks</small>
-                  </div>
-                  <div className="date-grid">
-                    {days.map((day, i) => {
-                      const available = byDay.has(day);
-                      return (
-                        <button
-                          key={day}
-                          disabled={!available || locked}
-                          aria-pressed={selectedDay === day}
-                          aria-label={
-                            dateLabel(day, {
-                              weekday: "long",
-                              month: "long",
-                              day: "numeric",
-                            }) + (available ? "" : ", unavailable")
-                          }
-                          className={`date-cell ${selectedDay === day ? "selected" : ""} ${day === today ? "today" : ""}`}
-                          onClick={() => {
-                            setDay(day);
-                            setSelected(null);
-                          }}
-                        >
-                          <span>{dateLabel(day, { weekday: "short" })}</span>
-                          <strong>{dateLabel(day, { day: "numeric" })}</strong>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <div className="times-heading">
-                    <h3>
-                      {selectedDay
-                        ? dateLabel(selectedDay, {
-                            weekday: "long",
-                            month: "short",
-                            day: "numeric",
-                          })
-                        : "No open times"}
-                    </h3>
-                    <span>{selectedSlots.length} available</span>
-                  </div>
-                  <div className="times-grid">
-                    {selectedSlots.map((slot) => (
-                      <button
-                        key={slot.start}
-                        disabled={locked}
-                        className={
-                          selected?.start === slot.start ? "selected" : ""
-                        }
-                        aria-pressed={selected?.start === slot.start}
-                        onClick={() => {
-                          setSelected(slot);
-                          setError("");
-                        }}
-                      >
-                        {time(slot.start, tz)}
-                      </button>
-                    ))}
-                  </div>
-                  {!selectedSlots.length && (
-                    <p className="subtle-text">
-                      There are no open times on this date. Try another day or a
-                      shorter meeting.
-                    </p>
-                  )}
-                </>
+                <TimeTable
+                  slots={data.slots}
+                  timezone={tz}
+                  now={data.now}
+                  duration={duration}
+                  selected={selected}
+                  locked={locked}
+                  onSelect={(slot) => {
+                    setSelected(slot);
+                    setError("");
+                  }}
+                  onContinue={() => {
+                    document.getElementById("booking-details")?.scrollIntoView({
+                      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+                      block: "start",
+                    });
+                    document.getElementById("booking-name")?.focus({ preventScroll: true });
+                  }}
+                />
               )}
             </div>
             {data?.ready && (
@@ -550,7 +461,7 @@ export function BookingPage() {
             )}
           </section>
           {(selected || frozen) && (
-            <section className="card details-card">
+            <section className="card details-card" id="booking-details">
               <h2>Your details</h2>
               <div className="selected-summary">
                 <span>
@@ -566,6 +477,7 @@ export function BookingPage() {
                   <label>
                     Your name
                     <input
+                      id="booking-name"
                       name="name"
                       autoComplete="name"
                       required

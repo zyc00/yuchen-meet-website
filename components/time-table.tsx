@@ -1,0 +1,102 @@
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowRight, Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { calendarDays } from "../lib/client/calendar.mjs";
+import { buildTimetable, weekDates } from "../lib/client/timetable.mjs";
+
+type Slot = { start: string; end: string };
+type Props = {
+  slots: Slot[];
+  timezone: string;
+  now: number;
+  duration: number;
+  selected: Slot | null;
+  locked: boolean;
+  onSelect: (slot: Slot) => void;
+  onContinue: () => void;
+};
+const dateLabel = (day: string, options: Intl.DateTimeFormatOptions) =>
+  new Date(day + "T12:00:00Z").toLocaleDateString("en-US", { ...options, timeZone: "UTC" });
+const timeLabel = (iso: string, timezone: string, offset = false) =>
+  new Date(iso).toLocaleTimeString("en-US", {
+    timeZone: timezone, hour: "numeric", minute: "2-digit",
+    ...(offset ? { timeZoneName: "shortOffset" as const } : {}),
+  });
+
+export function TimeTable({ slots, timezone, now, duration, selected, locked, onSelect, onContinue }: Props) {
+  const [week, setWeek] = useState(0);
+  const scroll = useRef<HTMLDivElement>(null);
+  const days = useMemo(() => calendarDays(now, timezone), [now, timezone]);
+  const firstDay = days[0];
+  const maxWeek = Math.ceil(days.length / 7) - 1;
+  const page = Math.min(week, maxWeek);
+  const dates = useMemo(() => weekDates(firstDay, page), [firstDay, page]);
+  const rows = useMemo(() => buildTimetable(slots, timezone, dates), [slots, timezone, dates]);
+  const hasOpenTimes = rows.some(row => row.cells.some(cell => cell.length));
+  useEffect(() => { setWeek(0); }, [timezone, firstDay]);
+  function changeWeek(next: number) {
+    setWeek(next);
+    if (scroll.current) scroll.current.scrollLeft = 0;
+  }
+  const differentYear = dates[0].slice(0, 4) !== dates[6].slice(0, 4);
+  return (
+    <div className="timetable">
+      <div className="timetable-toolbar">
+        <h3 aria-live="polite">
+          {dateLabel(dates[0], { month: "short", day: "numeric", ...(differentYear ? { year: "numeric" } : {}) })}
+          <span className="range-dash">–</span>
+          {dateLabel(dates[6], { month: "short", day: "numeric", year: "numeric" })}
+        </h3>
+        <div className="week-navigation" aria-label="Timetable navigation">
+          <button type="button" className="today-button" onClick={() => changeWeek(0)} disabled={page === 0 || locked}>Today</button>
+          <button type="button" aria-label="Previous week" onClick={() => changeWeek(page - 1)} disabled={page === 0 || locked}><ChevronLeft size={18} /></button>
+          <button type="button" aria-label="Next week" onClick={() => changeWeek(page + 1)} disabled={page === maxWeek || locked}><ChevronRight size={18} /></button>
+        </div>
+      </div>
+      <div className="timetable-key">
+        <span><i className="available-key" /> Available</span>
+        <span><i className="unavailable-key" /> Unavailable</span>
+        <span className="start-time-note">Select a start time · {duration} min</span>
+      </div>
+      <div className="timetable-scroll" ref={scroll} role="region" aria-label="Weekly meeting start times" tabIndex={0}>
+        <table className="time-table">
+          <caption className="sr-only">Available {duration}-minute meetings. All times in {timezone.replaceAll("_", " ")}.</caption>
+          <thead><tr>
+            <th className="time-axis" scope="col"><span>Time</span></th>
+            {dates.map(day => <th key={day} scope="col" className={`${day === firstDay ? "is-today" : ""} ${!days.includes(day) ? "outside-horizon" : ""}`}>
+              <span className="day-name">{dateLabel(day, { weekday: "short" })}</span>
+              <span className="day-number">{dateLabel(day, { day: "numeric" })}</span>
+              {day === firstDay && <span className="sr-only">Today</span>}
+            </th>)}
+          </tr></thead>
+          <tbody>
+            {rows.map(row => <tr key={row.minute}>
+              <th scope="row" className="time-axis">{row.label}</th>
+              {row.cells.map((cell, column) => <td key={dates[column]}>
+                {cell.length ? <div className="time-cell-options">{cell.map(slot => {
+                  const isSelected = selected?.start === slot.start;
+                  const label = `${dateLabel(dates[column], { weekday: "long", month: "long", day: "numeric" })}, ${timeLabel(slot.start, timezone, true)} to ${timeLabel(slot.end, timezone, true)}`;
+                  return <button key={slot.start} type="button" disabled={locked}
+                    className={`time-cell available ${isSelected ? "selected" : ""}`}
+                    aria-label={label} aria-pressed={isSelected} title={label}
+                    onClick={() => onSelect(slot)}>
+                    {isSelected && <Check size={12} aria-hidden="true" />}
+                    <span>{timeLabel(slot.start, timezone, cell.length > 1)}</span>
+                  </button>;
+                })}</div> : <span className="time-cell unavailable" aria-label="Unavailable"><span aria-hidden="true">—</span></span>}
+              </td>)}
+            </tr>)}
+          </tbody>
+        </table>
+      </div>
+      {!hasOpenTimes && <p className="subtle-text" role="status">No open times this week. Try another week or a shorter meeting.</p>}
+      <p className="timetable-hint">Times shown in {timezone.replaceAll("_", " ")}.<span className="mobile-scroll-hint"> Swipe to see more days.</span></p>
+      {selected && <div className="time-selection">
+        <div aria-live="polite">
+          <span>{new Date(selected.start).toLocaleDateString("en-US", { timeZone: timezone, weekday: "short", month: "short", day: "numeric" })}</span>
+          <strong>{timeLabel(selected.start, timezone, true)} – {timeLabel(selected.end, timezone, true)}</strong>
+        </div>
+        <button type="button" className="primary-button" onClick={onContinue}>Continue <ArrowRight size={16} /></button>
+      </div>}
+    </div>
+  );
+}
