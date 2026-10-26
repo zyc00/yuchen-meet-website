@@ -1,0 +1,26 @@
+[Unit]
+Description=Yuchen meeting booking API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=yuchen-meeting
+Group=yuchen-meeting
+WorkingDirectory=/opt/yuchen-meeting/app
+EnvironmentFile=/etc/yuchen-meeting.env
+ExecStart=/usr/bin/node server/index.mjs
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/yuchen-meeting
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target

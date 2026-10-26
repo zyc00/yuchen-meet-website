@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env*
+!.env.example
+outputs/
+.DS_Store
+*.tsbuildinfo
+server/static/
+*.sqlite*

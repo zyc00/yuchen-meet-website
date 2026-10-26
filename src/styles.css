@@ -1,0 +1,484 @@
+
+:root {
+  color-scheme: light;
+  --paper: #fcfcfa;
+  --ink: #242d2b;
+  --muted: #64716f;
+  --accent: #176e70;
+  --accent-hover: #104e50;
+  --rule: #dce3df;
+  --error: #a64036;
+  --serif: Georgia, "Times New Roman", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 1rem;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+::selection {
+  background: #dcece7;
+}
+a {
+  color: var(--accent);
+  text-decoration: none;
+  text-underline-offset: 0.24em;
+}
+a:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+button,
+select {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+svg {
+  flex-shrink: 0;
+}
+.page-shell {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 36px 24px;
+}
+.back-link {
+  font-size: 0.9rem;
+}
+.hero {
+  margin: 28px 0;
+}
+h1 {
+  font-family: var(--serif);
+  font-size: 2rem;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+  margin: 0 0 8px;
+}
+.hero p {
+  color: var(--muted);
+  margin: 0;
+  font-size: 0.93rem;
+}
+h2 {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1.4;
+  margin: 0 0 16px;
+}
+h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0;
+}
+.card {
+  border-top: 1px solid var(--rule);
+  padding: 24px 0;
+}
+.duration-picker {
+  display: flex;
+  gap: 8px;
+}
+.duration-picker button,
+.times-grid button,
+.secondary-button {
+  border: 1px solid var(--rule);
+  background: transparent;
+  padding: 6px 14px;
+  border-radius: 2px;
+  font-size: 0.9rem;
+}
+.duration-picker button.active,
+.times-grid button.selected,
+.date-cell.selected {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+.duration-picker button:hover,
+.times-grid button:not(:disabled):hover,
+.date-cell:not(:disabled):hover,
+.secondary-button:hover {
+  border-color: var(--accent);
+}
+.timezone-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 24px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.timezone-control select {
+  min-width: 0;
+  max-width: 100%;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 4px 8px;
+  background: transparent;
+  color: var(--ink);
+}
+.calendar-title,
+.times-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.calendar-title strong {
+  font-size: 0.93rem;
+  font-weight: 500;
+}
+.calendar-title small,
+.times-heading > span {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.date-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+.date-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  min-height: 55px;
+  padding: 4px 0;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: transparent;
+}
+.date-cell > span {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.date-cell strong {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+.date-cell.selected strong {
+  font-weight: 700;
+}
+.date-cell.today:not(.selected) strong {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.date-cell:disabled {
+  border-color: transparent;
+}
+.times-heading {
+  margin-top: 22px;
+}
+.times-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.times-grid button {
+  padding: 6px 2px;
+}
+.card-note,
+.subtle-text,
+.fine-print,
+.admin-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 16px 0 0;
+}
+.empty-state {
+  padding: 8px 0;
+  color: var(--muted);
+  font-size: 0.93rem;
+}
+.empty-state p {
+  margin: 0;
+}
+.text-button {
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  padding: 0;
+  text-decoration: underline;
+}
+.selected-summary {
+  margin: 0 0 20px;
+  font-size: 0.9rem;
+}
+.selected-summary strong {
+  display: block;
+  font-weight: 400;
+  color: var(--muted);
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+form label {
+  display: block;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+form label > span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-left: 4px;
+}
+input,
+textarea {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: transparent;
+  padding: 7px 9px;
+  margin-top: 5px;
+  font-size: 1rem;
+}
+input:disabled,
+textarea:disabled {
+  opacity: 0.6;
+}
+textarea {
+  resize: vertical;
+  min-height: 85px;
+}
+.primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--accent);
+  color: var(--paper);
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  padding: 7px 16px;
+  font-size: 0.9rem;
+}
+.primary-button:hover {
+  background: var(--accent-hover);
+  color: var(--paper);
+  text-decoration: none;
+}
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: var(--accent);
+}
+.honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.error-message,
+.admin-error {
+  color: var(--error);
+  font-size: 0.9rem;
+}
+.demo-banner {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-bottom: 16px;
+}
+.confirmation > p {
+  color: var(--muted);
+  font-size: 0.93rem;
+}
+.confirmation-details {
+  border-block: 1px solid var(--rule);
+  padding: 16px 0;
+  margin: 20px 0;
+  font-size: 0.9rem;
+}
+.confirmation-details strong,
+.confirmation-details span {
+  display: block;
+}
+.confirmation-details strong {
+  font-weight: 500;
+}
+.confirmation-details span {
+  color: var(--muted);
+}
+.confirmation-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid var(--rule);
+  padding-top: 20px;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.spin {
+  animation: spin 1.4s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.admin-shell {
+  max-width: 800px;
+}
+.admin-shell .eyebrow {
+  display: none;
+}
+.admin-status {
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.hours-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.hours-row > label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 140px;
+  margin: 0;
+}
+.hours-row input[type="checkbox"],
+.toggle-label input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  accent-color: var(--accent);
+}
+.hours-row input[type="time"] {
+  width: 125px;
+  margin: 0;
+}
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 18px 0 22px;
+}
+.hours-editor {
+  margin: 8px 0 20px;
+}
+.admin-shell code {
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+.admin-message {
+  margin: 0 0 18px;
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+.pending-item {
+  border-top: 1px solid var(--rule);
+  padding: 12px 0;
+  font-size: 0.9rem;
+}
+.pending-item strong {
+  display: block;
+}
+.pending-item span {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+@media (max-width: 600px) {
+  .page-shell {
+    padding: 24px 18px;
+  }
+  h1 {
+    font-size: 1.75rem;
+  }
+  .hero {
+    margin: 24px 0;
+  }
+  .date-grid {
+    gap: 4px;
+  }
+  .times-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .hours-row {
+    gap: 6px;
+  }
+  .hours-row > label {
+    min-width: 88px;
+    font-size: 0.8rem;
+  }
+  .hours-row input[type="time"] {
+    width: 94px;
+    padding: 6px 3px;
+    font-size: 0.8rem;
+  }
+  .hours-row > span {
+    font-size: 0.8rem;
+  }
+  footer {
+    flex-wrap: wrap;
+    gap: 4px 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+}
