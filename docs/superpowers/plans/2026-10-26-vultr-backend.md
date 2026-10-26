@@ -35,8 +35,8 @@
 - [x] Install a supported Node runtime on the existing server, deploy app and private environment, apply SQLite migration.
 - [x] Add isolated nginx server block, obtain certificate after DNS A meet-api is present.
 - [x] Configure Google OAuth client under the user's personal project; obtain action-time approvals for credential creation/Google consent as required by browser policy.
-- [ ] Connect the allowed Penn calendar and verify read-only availability; do not send a test invitation without an actual requested attendee/time.
-- [ ] Publish GitHub Pages UI with API origin, check both hostnames, remove prior Sites domain binding/close old public access.
+- [x] Connect the allowed Penn calendar and verify read-only availability; do not send a test invitation without an actual requested attendee/time.
+- [x] Publish GitHub Pages UI with API origin, check both hostnames, remove prior Sites domain binding/close old public access.
 
 ## Verification
 - 39 automated tests passed; public and private admin production builds passed.
@@ -45,3 +45,4 @@
 - Backend HTTPS is active with automatic certificate renewal; unauthenticated administration returns 401.
 - Google OAuth client and Calendar API are configured under the personal Cloud project; OAuth publishing status is In production.
 - No live test invitations have been sent.
+- The owner completed Google consent. Read-only live checks confirmed 30/60-minute slots match the configured New York hours. GitHub Pages enforces HTTPS.

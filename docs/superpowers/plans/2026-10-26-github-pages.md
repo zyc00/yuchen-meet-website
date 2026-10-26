@@ -39,4 +39,5 @@
 - Source and gh-pages branches are published to zyc00/yuchen-meet-website.
 - DNS points to GitHub Pages and the independent Vultr API.
 - Prior Sites domain binding is removed and its audience is owner-only.
-- GitHub Pages HTTPS provisioning and the owner’s final Google Calendar grant remain under verification.
+- GitHub Pages HTTPS is enabled and the allowed Penn calendar is connected. Public 30/60-minute availability checks passed.
+- The local network resolver still caches the old Sites CNAME; authoritative DNS and public resolvers point to GitHub Pages. HTTPS was verified against the GitHub endpoint without disabling certificate verification.
