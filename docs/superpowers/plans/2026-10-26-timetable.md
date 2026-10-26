@@ -28,7 +28,7 @@
 - [x] Replace date/time pickers in components/booking-page.tsx; keep all submit/recovery code intact.
 - [x] Style the week grid in src/styles.css; add selected-time summary and Continue action.
 - [x] Run tests/build and inspect desktop/mobile, duration/timezone changes, paging and selection in a read-only local fixture.
-- [ ] Review changes, commit/push source and publish gh-pages; verify deployed assets.
+- [x] Review changes, commit/push source and publish gh-pages; verify deployed assets.
 
 ## Verification record
 - 44 tests and both production builds passed.
@@ -37,3 +37,4 @@
 - Keyboard selection, Continue focus, 30/60-minute switching, New York/Shanghai/Katmandu conversion and a 390px viewport were checked.
 - Mobile page width stayed 390px while only the timetable scrolled; its time axis remained fixed after horizontal scrolling.
 - UI checks used read-only snapshots of public availability with all booking writes blocked.
+- GitHub Pages built commit `bbb3140`; public HTML references the new assets, and downloaded JavaScript/CSS match the production build byte for byte. HTTPS verification used the correct GitHub IP because the local upstream DNS still caches the former host.
