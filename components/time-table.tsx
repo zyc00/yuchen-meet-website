@@ -6,12 +6,13 @@ import { buildTimetable, weekDates } from "../lib/client/timetable.mjs";
 type Slot = { start: string; end: string };
 type Props = {
   slots: Slot[];
+  busy: Slot[];
   timezone: string;
   now: number;
   duration: number;
   selected: Slot | null;
   locked: boolean;
-  onSelect: (slot: Slot) => void;
+  onSelect: (slot: Slot | null) => void;
   onContinue: () => void;
 };
 const dateLabel = (day: string, options: Intl.DateTimeFormatOptions) =>
@@ -22,17 +23,39 @@ const timeLabel = (iso: string, timezone: string, offset = false) =>
     ...(offset ? { timeZoneName: "shortOffset" as const } : {}),
   });
 
-export function TimeTable({ slots, timezone, now, duration, selected, locked, onSelect, onContinue }: Props) {
+export function TimeTable({ slots, busy, timezone, now, duration, selected, locked, onSelect, onContinue }: Props) {
   const [week, setWeek] = useState(0);
+  const [clock, setClock] = useState({ source: now, elapsed: 0 });
+  const currentNow = now + (clock.source === now ? clock.elapsed : 0);
+  useEffect(() => {
+    const receivedAt = Date.now();
+    setClock({ source: now, elapsed: 0 });
+    const tick = () => setClock(previous => ({ source: now,
+      elapsed: Math.max(previous.source === now ? previous.elapsed : 0, Date.now() - receivedAt),
+    }));
+    const timer = setInterval(tick, 30000);
+    window.addEventListener("focus", tick);
+    document.addEventListener("visibilitychange", tick);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener("focus", tick);
+      document.removeEventListener("visibilitychange", tick);
+    };
+  }, [now]);
   const scroll = useRef<HTMLDivElement>(null);
   const days = useMemo(() => calendarDays(now, timezone), [now, timezone]);
   const firstDay = days[0];
   const maxWeek = Math.ceil(days.length / 7) - 1;
   const page = Math.min(week, maxWeek);
   const dates = useMemo(() => weekDates(firstDay, page), [firstDay, page]);
-  const rows = useMemo(() => buildTimetable(slots, timezone, dates), [slots, timezone, dates]);
+  const rows = useMemo(() => buildTimetable(slots, timezone, dates, {
+    busy, now: currentNow, validDates: days, horizonEnd: now + 21 * 86400000,
+  }), [slots, busy, timezone, dates, currentNow, days, now]);
   const hasOpenTimes = rows.some(row => row.cells.some(cell => cell.length));
   useEffect(() => { setWeek(0); }, [timezone, firstDay]);
+  useEffect(() => {
+    if (selected && !locked && Date.parse(selected.start) <= currentNow) onSelect(null);
+  }, [selected, locked, currentNow, onSelect]);
   function changeWeek(next: number) {
     setWeek(next);
     if (scroll.current) scroll.current.scrollLeft = 0;
@@ -75,7 +98,9 @@ export function TimeTable({ slots, timezone, now, duration, selected, locked, on
                     aria-label={label} aria-pressed={isSelected} title={label}
                     onClick={() => onSelect(slot)}>
                   </button>;
-                })}</div> : <span className="time-cell unavailable" aria-label="Unavailable" />}
+                })}</div> : <span className={`time-cell ${row.states[column]}`} role="img"
+                  aria-label={row.states[column] === "past" ? "Past time" : row.states[column] === "busy" ? "Busy" : "Unavailable"}
+                  title={`${dateLabel(dates[column], { weekday: "short", month: "short", day: "numeric" })}, ${row.label} · ${row.states[column] === "past" ? "This time has passed" : row.states[column] === "busy" ? "Calendar busy" : `Not available for a ${duration}-minute meeting`}`} />}
               </td>)}
             </tr>)}
           </tbody>
@@ -84,6 +109,7 @@ export function TimeTable({ slots, timezone, now, duration, selected, locked, on
       {!hasOpenTimes && <p className="subtle-text" role="status">No open times this week. Try another week or a shorter meeting.</p>}
       <div className="timetable-key">
         <span><i className="available-key" /> Available</span>
+        <span><i className="busy-key" /> Busy</span>
         <span><i className="unavailable-key" /> Unavailable</span>
         <span className="start-time-note">Choose a {duration}-minute start time<span className="mobile-scroll-hint"> · Swipe for more days</span></span>
       </div>

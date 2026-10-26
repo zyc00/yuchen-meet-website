@@ -33,3 +33,69 @@ test('timezone conversion assigns a slot to the visitor’s date', () => {
   assert.equal(rows[0].cells[0].length,0);
   assert.equal(rows[0].cells[1][0],s);
 });
+
+test('elapsed and closed times are not presented as calendar occupancy', () => {
+  const dates = ['2026-10-26','2026-10-27','2026-10-28'];
+  const now = Date.parse('2026-10-26T16:15:00Z'); // 12:15 New York
+  const slots = [slot('2026-10-27T14:00:00Z'), slot('2026-10-27T17:30:00Z')];
+  const busy = [slot('2026-10-26T14:00:00Z'),slot('2026-10-26T17:00:00Z')];
+  const rows = buildTimetable(slots, 'America/New_York', dates, {busy,now});
+  assert.equal(rows.find(r=>r.minute===600).states?.[0], 'past');
+  assert.equal(rows.find(r=>r.minute===720).states?.[0], 'past');
+  assert.equal(rows.find(r=>r.minute===780).states?.[0], 'busy');
+  assert.equal(rows.find(r=>r.minute===810).states?.[0], 'unavailable');
+  assert.equal(rows.find(r=>r.minute===600).states?.[1], 'available');
+  assert.equal(rows.find(r=>r.minute===780).states?.[2], 'unavailable');
+});
+
+test('a slot that expires while the page is open is no longer selectable', () => {
+  const slots = [slot('2026-10-26T14:00:00Z'),slot('2026-10-26T14:30:00Z')];
+  const rows = buildTimetable(slots, 'America/New_York', ['2026-10-26'], {
+    now: Date.parse('2026-10-26T14:00:00Z'),
+  });
+  assert.equal(rows[0].cells[0].length,0);
+  assert.equal(rows[0].states?.[0],'past');
+  assert.equal(rows[1].cells[0][0],slots[1]);
+});
+
+test('a 60-minute start blocked by a later meeting does not invent an extra busy half-hour', () => {
+  const slots = [{start:'2026-10-27T14:00:00Z',end:'2026-10-27T15:00:00Z'},
+    {start:'2026-10-27T16:00:00Z',end:'2026-10-27T17:00:00Z'}];
+  const rows = buildTimetable(slots, 'America/New_York', ['2026-10-27'], {
+    now: Date.parse('2026-10-26T20:00:00Z'),
+    busy: [{start:'2026-10-27T15:00:00Z',end:'2026-10-27T16:00:00Z'}],
+  });
+  assert.equal(rows.find(r=>r.minute===630).states?.[0], 'unavailable'); // 10:30 cannot fit an hour
+  assert.equal(rows.find(r=>r.minute===660).states?.[0], 'busy');
+  assert.equal(rows.find(r=>r.minute===690).states?.[0], 'busy');
+  assert.equal(rows.find(r=>r.minute===720).states?.[0], 'available'); // touching end is not overlap
+});
+
+test('busy blocks use absolute overlap in quarter-hour timezones and across midnight', () => {
+  const rows = buildTimetable([slot('2026-10-26T18:00:00Z'),slot('2026-10-26T19:00:00Z'),slot('2026-10-27T18:30:00Z')],
+    'Asia/Kathmandu', ['2026-10-26','2026-10-27','2026-10-28'], {
+      now: Date.parse('2026-10-26T17:00:00Z'),
+      busy: [{start:'2026-10-26T18:40:00Z',end:'2026-10-26T18:50:00Z'}],
+    });
+  assert.equal(rows.find(r=>r.minute===15).states?.[1], 'busy');
+  assert.equal(rows.find(r=>r.minute===15).states?.[0], 'past');
+});
+
+test('a later DST occurrence remains available after the first wall-time occurrence expires', () => {
+  const first = slot('2026-11-01T05:30:00Z'), second = slot('2026-11-01T06:30:00Z');
+  const rows = buildTimetable([first, second], 'America/New_York', ['2026-11-01'], {
+    now: Date.parse('2026-11-01T05:45:00Z'), busy:[first],
+  });
+  assert.deepEqual(rows[0].cells[0], [second]);
+  assert.equal(rows[0].states?.[0], 'available');
+});
+
+test('dates outside the booking horizon and DST gaps stay disabled rather than busy', () => {
+  const rows = buildTimetable([slot('2026-03-07T06:30:00Z'),slot('2026-03-07T08:00:00Z')],
+    'America/New_York', ['2026-03-07','2026-03-08','2026-03-09'], {
+      now: Date.parse('2026-03-07T00:00:00Z'), validDates:['2026-03-07','2026-03-08'],
+      busy:[{start:'2026-03-09T00:00:00Z',end:'2026-03-10T00:00:00Z'}],
+    });
+  assert.equal(rows.find(r=>r.minute===120).states?.[1], 'unavailable');
+  assert.equal(rows.find(r=>r.minute===120).states?.[2], 'unavailable');
+});

@@ -439,6 +439,7 @@ export function BookingPage() {
               ) : (
                 <TimeTable
                   slots={data.slots}
+                  busy={data.busy}
                   timezone={tz}
                   now={data.now}
                   duration={duration}
