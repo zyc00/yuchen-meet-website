@@ -25,15 +25,23 @@
 - Existing hosted services must remain healthy after nginx reload.
 
 ### Task 1: Server adapter and authentication
-- [ ] Copy tested booking domain/server and migrations; implement SQLite adapter.
-- [ ] Update owner authentication to dedicated password and remove Sites headers/UI.
-- [ ] Add tests for missing/wrong auth, accepted auth, forged headers, CORS and body limits; run before/after implementation.
-- [ ] Add Node server, private admin build and systemd/nginx templates.
-- [ ] Run all booking tests, build and independent review.
+- [x] Copy tested booking domain/server and migrations; implement SQLite adapter.
+- [x] Update owner authentication to dedicated password and remove Sites headers/UI.
+- [x] Add tests for missing/wrong auth, accepted auth, forged headers, CORS and body limits; run before/after implementation.
+- [x] Add Node server, private admin build and systemd/nginx templates.
+- [x] Run all booking tests, build and independent review.
 
 ### Task 2: Deploy and connect
-- [ ] Install a supported Node runtime on the existing server, deploy app and private environment, apply SQLite migration.
-- [ ] Add isolated nginx server block, obtain certificate after DNS A meet-api is present.
-- [ ] Configure Google OAuth client under the user's personal project; obtain action-time approvals for credential creation/Google consent as required by browser policy.
+- [x] Install a supported Node runtime on the existing server, deploy app and private environment, apply SQLite migration.
+- [x] Add isolated nginx server block, obtain certificate after DNS A meet-api is present.
+- [x] Configure Google OAuth client under the user's personal project; obtain action-time approvals for credential creation/Google consent as required by browser policy.
 - [ ] Connect the allowed Penn calendar and verify read-only availability; do not send a test invitation without an actual requested attendee/time.
 - [ ] Publish GitHub Pages UI with API origin, check both hostnames, remove prior Sites domain binding/close old public access.
+
+## Verification
+- 39 automated tests passed; public and private admin production builds passed.
+- Independent review completed; real meeting URL was removed from the public environment template before the initial commit.
+- Isolated systemd service is running; existing services remain active.
+- Backend HTTPS is active with automatic certificate renewal; unauthenticated administration returns 401.
+- Google OAuth client and Calendar API are configured under the personal Cloud project; OAuth publishing status is In production.
+- No live test invitations have been sent.

@@ -24,13 +24,19 @@
 - Existing homepage deployment must remain intact.
 
 ### Task 1: Static application
-- [ ] Copy booking component, styles and browser-only helpers into the isolated new repository.
-- [ ] Add API adapter tests for closed mode, secure origin validation and forwarded requests; run red, then implement.
-- [ ] Create Vite entry, metadata, CNAME and minimal dependencies.
-- [ ] Run tests, typecheck, production build and browser visual check.
+- [x] Copy booking component, styles and browser-only helpers into the isolated new repository.
+- [x] Add API adapter tests for closed mode, secure origin validation and forwarded requests; run red, then implement.
+- [x] Create Vite entry, metadata, CNAME and minimal dependencies.
+- [x] Run tests, typecheck, production build and browser visual check.
 
 ### Task 2: Publication
-- [ ] Review public source, initialize independent Git repository, commit and create zyc00/yuchen-meet-website.
-- [ ] Publish built assets to gh-pages and configure Pages for meet.yuchenzh.com.
-- [ ] Verify deployment and report any DNS/backend dependencies.
-- [ ] Migrate backend after provider choice; retire prior Sites hosting after replacement is ready.
+- [x] Review public source, initialize independent Git repository, commit and create zyc00/yuchen-meet-website.
+- [x] Publish built assets to gh-pages and configure Pages for meet.yuchenzh.com.
+- [x] Verify deployment and report any DNS/backend dependencies.
+- [x] Migrate backend after provider choice; retire prior Sites hosting after replacement is ready.
+
+## Deployment status
+- Source and gh-pages branches are published to zyc00/yuchen-meet-website.
+- DNS points to GitHub Pages and the independent Vultr API.
+- Prior Sites domain binding is removed and its audience is owner-only.
+- GitHub Pages HTTPS provisioning and the owner’s final Google Calendar grant remain under verification.

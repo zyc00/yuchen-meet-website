@@ -169,6 +169,12 @@ export async function handleApi(request, env, clientIp = "shared") {
           );
         } catch (e) {
           const code = e instanceof BookingError ? e.code : "oauth";
+          if (env.NODE_ENV === "production") {
+            const safeCode = (value) => typeof value === "string" && /^[A-Za-z_]{1,80}$/.test(value) ? value : "unknown";
+            console.warn("Google connection failed", {
+              type: safeCode(e?.name), code: safeCode(e?.code), providerError: safeCode(e?.error),
+            });
+          }
           return Response.redirect(
             new URL(
               `/admin?connection_error=${encodeURIComponent(code)}`,
