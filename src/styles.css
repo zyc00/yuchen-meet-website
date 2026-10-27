@@ -469,11 +469,6 @@ footer {
 .hour-choices button { background: var(--time-available); border: 1px solid #ecd7a4; border-radius: 3px; padding: 6px 15px; font-size: .8rem; }
 .hour-choices button:hover { background: #ffe2a0; }
 .hour-choices button.selected { background: var(--time-selected); border-color: #72acd8; }
-.time-selection { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px solid var(--rule); padding: 16px 0 0; margin: 18px 0 0 44px; }
-.time-selection > div > span { display: block; color: var(--muted); font-size: .75rem; }
-.time-selection strong { font-size: .88rem; font-weight: 500; }
-.time-selection small { display: block; font-size: .7rem; font-weight: 400; color: var(--muted); }
-.time-selection .primary-button { white-space: nowrap; border-radius: 5px; font-size: .8rem; padding: 6px 14px; }
 .details-card { max-width: 680px; scroll-margin-top: 24px; }
 .booking-page footer { font-size: .7rem; margin-top: 16px; padding-top: 14px; }
 @media (max-width: 700px) {
@@ -492,6 +487,5 @@ footer {
   .timetable-key { margin-left: 40px; flex-wrap: wrap; gap: 8px 14px; font-size: .65rem; }
   .timetable-key .start-time-note { width: 100%; margin-left: 0; display: block; }
   .hour-choices { margin-left: 0; }
-  .time-selection { margin-left: 0; gap: 10px; }
 }
 @media (prefers-reduced-motion: reduce) { .time-cell { transition: none; } }

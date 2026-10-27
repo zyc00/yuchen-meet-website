@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { calendarDays } from "../lib/client/calendar.mjs";
 import { buildTimetable, hourlyTimetable, mondayOfWeek, weekDates } from "../lib/client/timetable.mjs";
 
@@ -13,7 +13,6 @@ type Props = {
   selected: Slot | null;
   locked: boolean;
   onSelect: (slot: Slot | null) => void;
-  onContinue: () => void;
 };
 const dateLabel = (day: string, options: Intl.DateTimeFormatOptions) =>
   new Date(day + "T12:00:00Z").toLocaleDateString("en-US", { ...options, timeZone: "UTC" });
@@ -23,7 +22,7 @@ const timeLabel = (iso: string, timezone: string, offset = false) =>
     ...(offset ? { timeZoneName: "shortOffset" as const } : {}),
   });
 
-export function TimeTable({ slots, busy, timezone, now, duration, selected, locked, onSelect, onContinue }: Props) {
+export function TimeTable({ slots, busy, timezone, now, duration, selected, locked, onSelect }: Props) {
   const [week, setWeek] = useState(0);
   const [openHour, setOpenHour] = useState<{day: string; minute: number} | null>(null);
   const choicesRef = useRef<HTMLDivElement>(null);
@@ -140,13 +139,6 @@ export function TimeTable({ slots, busy, timezone, now, duration, selected, lock
           aria-label={`${timeLabel(slot.start,timezone,true)} to ${timeLabel(slot.end,timezone,true)}`}
           className={selected?.start === slot.start ? "selected" : ""}
           onClick={()=>onSelect(slot)}>{timeLabel(slot.start,timezone,showOffsets)}</button>)}</div>
-      </div>}
-      {selected && <div className="time-selection">
-        <div aria-live="polite">
-          <span>{new Date(selected.start).toLocaleDateString("en-US", { timeZone: timezone, weekday: "short", month: "short", day: "numeric" })}</span>
-          <strong>{timeLabel(selected.start, timezone, showOffsets)} – {timeLabel(selected.end, timezone, showOffsets)}<small>{timezone.replaceAll("_", " ")}</small></strong>
-        </div>
-        <button type="button" className="primary-button" onClick={onContinue}>Continue <ArrowRight size={16} /></button>
       </div>}
     </div>
   );

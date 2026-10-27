@@ -449,13 +449,6 @@ export function BookingPage() {
                     setSelected(slot);
                     setError("");
                   }}
-                  onContinue={() => {
-                    document.getElementById("booking-details")?.scrollIntoView({
-                      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
-                      block: "start",
-                    });
-                    document.getElementById("booking-name")?.focus({ preventScroll: true });
-                  }}
                 />
               )}
             </div>
