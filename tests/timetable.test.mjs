@@ -118,14 +118,35 @@ test('hourly overview halves the row count while keeping every real start time',
   assert.deepEqual(overview.flatMap(row=>row.cells[0].slots),slots);
 });
 
-test('hourly overview preserves partial occupancy without claiming an entire hour is busy', () => {
-  const open=slot('2026-10-27T17:00:00Z');
-  const detailed=buildTimetable([open,slot('2026-10-27T18:00:00Z')],'America/New_York',['2026-10-27'],{
-    now:Date.parse('2026-10-26T20:00:00Z'), busy:[slot('2026-10-27T17:30:00Z')],
-  });
-  const overview=timetable.hourlyTimetable?.(detailed);
-  assert.deepEqual(overview?.[0].cells[0].parts.map(part=>part.state),['available','busy']);
-  assert.deepEqual(overview[0].cells[0].slots,[open]);
+test('either occupied half closes the whole hour while the next free hour stays selectable', () => {
+  for (const [openStart,busyStart] of [
+    ['2026-10-27T17:00:00Z','2026-10-27T17:30:00Z'],
+    ['2026-10-27T17:30:00Z','2026-10-27T17:00:00Z'],
+  ]) {
+    const next=slot('2026-10-27T18:00:00Z'), busy=[slot(busyStart)];
+    const detailed=buildTimetable([slot(openStart),next],'America/New_York',['2026-10-27'],{
+      now:Date.parse('2026-10-26T20:00:00Z'), busy,
+    });
+    const overview=timetable.hourlyTimetable(detailed);
+    assert.deepEqual(overview[0].cells[0].slots,[]);
+    assert.equal(overview[0].cells[0].state,'busy');
+    assert.deepEqual(overview[1].cells[0].slots,[next]);
+    assert.equal(overview[1].cells[0].state,'available');
+  }
+});
+
+test('a busy half outside the visible start-time range still closes its hour', () => {
+  const busy=[slot('2026-10-27T17:30:00Z')];
+  const detailed=buildTimetable([slot('2026-10-27T17:00:00Z')],'America/New_York',['2026-10-27'],{busy});
+  const overview=timetable.hourlyTimetable(detailed);
+  assert.deepEqual(overview[0].cells[0].slots,[]);
+  assert.equal(overview[0].cells[0].state,'busy');
+});
+
+test('range-edge occupancy is blue even on a day without any available candidate', () => {
+  const busy=[slot('2026-10-28T17:30:00Z')];
+  const detailed=buildTimetable([slot('2026-10-27T17:00:00Z')],'America/New_York',['2026-10-27','2026-10-28'],{busy});
+  assert.equal(timetable.hourlyTimetable(detailed)[0].cells[1].state,'busy');
 });
 
 test('hour grouping keeps DST repeats and quarter-hour starts as distinct exact choices', () => {

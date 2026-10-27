@@ -62,8 +62,14 @@ export function TimeTable({ slots, busy, timezone, now, duration, selected, lock
     choicesRef.current?.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
   }, [openHour]);
   useEffect(() => {
-    if (selected && !locked && Date.parse(selected.start) <= currentNow) onSelect(null);
-  }, [selected, locked, currentNow, onSelect]);
+    if (!selected || locked) return;
+    // Validate independently of the displayed week, including after a timezone
+    // change groups this start into an occupied hour. Preserve locked recovery.
+    const allowed = hourlyTimetable(buildTimetable([selected], timezone, days, {
+      busy, now: currentNow, horizonEnd: now + 21 * 86400000,
+    })).some(row => row.cells.some(cell => cell.slots.some(slot => slot.start === selected.start)));
+    if (!allowed) onSelect(null);
+  }, [selected, locked, currentNow, timezone, days, busy, now, onSelect]);
   function changeWeek(next: number) {
     setWeek(next);
     setOpenHour(null);
@@ -100,16 +106,14 @@ export function TimeTable({ slots, busy, timezone, now, duration, selected, lock
               {row.cells.map((cell, column) => {
                 const isSelected = cell.slots.some(slot => slot.start === selected?.start);
                 const isExpanded = openHour?.day === dates[column] && openHour.minute === row.minute;
-                const colors = cell.parts.map(part => `var(--time-${part.slots.some(slot => slot.start === selected?.start) ? "selected" : part.state})`);
-                const background = colors.length === 1 ? colors[0] : `linear-gradient(to bottom, ${colors.map((color,index)=>`${color} ${index/colors.length*100}% ${(index+1)/colors.length*100}%`).join(", ")})`;
+                const background = `var(--time-${isSelected ? "selected" : cell.state})`;
                 const label = `${dateLabel(dates[column], { weekday: "long", month: "long", day: "numeric" })}, ${row.label}`;
-                const states = new Set(cell.parts.map(part=>part.state));
-                const stateLabel = states.has("busy") ? states.size > 1 ? "Partly busy" : "Busy" : states.size === 1 && states.has("past") ? "Past time" : "Unavailable";
+                const stateLabel = cell.state === "busy" ? "Busy" : cell.state === "past" ? "Past time" : "Unavailable";
                 return <td key={dates[column]}>
                   {cell.slots.length ? <button type="button" disabled={locked}
                     className={`time-cell available ${isSelected ? "selected" : ""} ${isExpanded ? "expanded" : ""}`}
-                    style={{background}} aria-label={`${label}, choose a start time${states.has("busy") ? ", partly busy" : ""}`} aria-pressed={isSelected}
-                    aria-expanded={isExpanded && hourChoices.length > 1} title={`${label} · ${cell.slots.length} available start times${states.has("busy") ? " · Partly busy" : ""}`}
+                    style={{background}} aria-label={`${label}, choose a start time`} aria-pressed={isSelected}
+                    aria-expanded={isExpanded && hourChoices.length > 1} title={`${label} · ${cell.slots.length} available start times`}
                     onClick={() => {
                       setOpenHour({day: dates[column], minute: row.minute});
                       if (cell.slots.length === 1) onSelect(cell.slots[0]);
